@@ -35,11 +35,29 @@ const isValidKey = (key, word) => {
 const App = () => {
     const [typedKeys, setTypedKeys] = React.useState([]); 
     const [validKeys, setValidKeys] = React.useState([]); 
+    const [completedWords, setCompetedWords] = React.useState([])
     const [word, setWord] = React.useState("");
 
     React.useEffect(() => {
         setWord(getWord());
     }, [])
+
+    React.useEffect(() => {
+        const wordFromValidKeys = validKeys.join("").toLowerCase();
+        if( word && word === wordFromValidKeys) {
+            
+            let newWord = null;
+            do {
+                newWord = getWord();
+            } while(completedWords.includes(newWord));
+
+            setWord(newWord);
+            setValidKeys([]);
+            setCompetedWords((prev) => [...prev, word])
+
+        }
+
+    }, [word, validKeys, completedWords]);
 
     const handleKeyDown = (e) => {
         e.preventDefault();
@@ -60,14 +78,13 @@ const App = () => {
         <div className="container" tabIndex="0" onKeyDown={handleKeyDown}> 
             <div className="valid-keys">
                 <Word word={word} validKeys={validKeys} />
-                
             </div>
             <div className="typed-keys">{typedKeys ? typedKeys.join(" ") : null}</div>
             <div className="completed-words">
                 <ol>
-                    <li>cidade</li>
-                    <li>carro</li>
-                    <li>profissional</li>
+                    {completedWords.map(word => {
+                        return (<li key={word}>{word}</li>)
+                    })}
                 </ol>
             </div>
         </div>
